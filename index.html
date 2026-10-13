@@ -21,11 +21,20 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; }
-    html { min-width: 0; }
+    html {
+      min-width: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
     body {
       margin: 0;
       min-width: 0;
-      min-height: 100vh;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
       background-color: var(--bg);
       background-image:
         radial-gradient(ellipse 68% 48% at 83% 9%, rgba(197, 160, 110, .07), transparent 76%),
@@ -37,14 +46,17 @@
     }
 
     main {
+      position: fixed;
+      top: 50%;
+      left: 50%;
       width: min(100% - 40px, 570px);
-      min-height: 100vh;
-      min-height: 100svh;
-      margin: 0 auto;
+      margin: 0;
       padding: 30px 0;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      transform: translate(-50%, -50%) scale(var(--fit-scale, 1));
+      transform-origin: center;
     }
 
     .download {
@@ -186,6 +198,25 @@
   <script>
     (function () {
       "use strict";
+
+      const page = document.querySelector("main");
+      function fitPage() {
+        // Keep the complete page visible without scrollbars, including on short phones.
+        const viewport = window.visualViewport;
+        const availableHeight = viewport ? viewport.height : window.innerHeight;
+        const availableWidth = viewport ? viewport.width : window.innerWidth;
+        const pageHeight = page.offsetHeight;
+        const pageWidth = page.offsetWidth;
+        if (!pageHeight || !pageWidth) return;
+        const scale = Math.min(1, (availableHeight - 16) / pageHeight, (availableWidth - 16) / pageWidth);
+        page.style.setProperty("--fit-scale", Math.max(0.1, scale).toFixed(4));
+      }
+
+      fitPage();
+      window.addEventListener("resize", fitPage);
+      if (window.visualViewport) window.visualViewport.addEventListener("resize", fitPage);
+      if (window.ResizeObserver) new ResizeObserver(fitPage).observe(page);
+      if (document.fonts) document.fonts.ready.then(fitPage);
 
       const button = document.getElementById("download-button");
       const sizeElement = document.getElementById("archive-size");
