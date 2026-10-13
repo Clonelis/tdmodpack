@@ -31,8 +31,13 @@
 
     main {
       width: min(100% - 40px, 570px);
+      min-height: 100vh;
+      min-height: 100svh;
       margin: 0 auto;
-      padding: clamp(40px, 6vh, 64px) 0 56px;
+      padding: 30px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .download {
@@ -45,7 +50,7 @@
       padding: 15px 21px;
       margin: 0 auto;
       border: 1px solid #d5a180;
-      border-radius: 6px;
+      border-radius: 4px;
       background: var(--accent);
       color: #201610;
       text-decoration: none;
@@ -73,6 +78,19 @@
       line-height: 1.6;
     }
     .file-info .separator { color: #705a4d; }
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(189, 137, 105, .3);
+      border-top-color: var(--accent-hover);
+      border-radius: 50%;
+      vertical-align: -1px;
+      animation: spinner-rotate .7s linear infinite;
+    }
+    @keyframes spinner-rotate {
+      to { transform: rotate(360deg); }
+    }
     .guide { margin-top: 34px; }
     h1 {
       margin: 0 0 24px;
@@ -95,10 +113,10 @@
     h2 { margin: 0 0 5px; font-size: 15px; font-weight: 650; }
     p { color: var(--muted); margin: 0; font-size: 13px; overflow-wrap: anywhere; }
     strong { color: #e0c8b7; font-weight: 650; }
-    code { border-radius: 4px; padding: 1px 4px; color: #dca886; background: #2d221c; font-size: .94em; }
+    code { border-radius: 3px; padding: 1px 4px; color: #dca886; background: #2d221c; font-size: .94em; }
 
     @media (max-width: 560px) {
-      main { width: calc(100% - 36px); padding: 42px 0 50px; }
+      main { width: calc(100% - 36px); padding: 26px 0; }
       .download { width: 100%; }
       .guide { margin-top: 26px; }
       h1 { font-size: 23px; }
@@ -106,6 +124,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition: none !important; }
+      .spinner { animation-duration: 2s; }
     }
   </style>
 </head>
@@ -118,25 +137,25 @@
       Скачать сборку
     </a>
     <div class="file-info" aria-live="polite">
-      <span id="archive-size">Размер: загрузка данных…</span>
+      <span>Размер: <span id="archive-size" aria-label="Загрузка размера архива"><span class="spinner" aria-hidden="true"></span></span></span>
       <span class="separator" aria-hidden="true">·</span>
-      <span id="archive-updated">Обновлено: загрузка данных…</span>
+      <span>Обновлено: <span id="archive-updated" aria-label="Загрузка даты обновления"><span class="spinner" aria-hidden="true"></span></span></span>
     </div>
 
     <section class="guide" aria-labelledby="guide-title">
-      <h1 id="guide-title">Как установить</h1>
+      <h1 id="guide-title">Как скачать и установить?</h1>
       <ol>
         <li>
           <span class="number">01</span>
-          <div><h2>Подготовь игру</h2><p>Установи Minecraft Java <strong>1.21.1</strong> и <strong>NeoForge 21.1.250</strong>.</p></div>
+          <div><h2>Подготовка игры</h2><p>Установите майнкрафт версии <strong>1.21.1</strong> и загрузчик <strong>NeoForge 21.1.250</strong>.</p></div>
         </li>
         <li>
           <span class="number">02</span>
-          <div><h2>Распакуй сборку</h2><p>Перемести <code>mods</code>, <code>config</code>, <code>resourcepacks</code>, <code>options.txt</code> и <code>servers.dat</code> в папку игры. Перед заменой файлов сохрани свои настройки.</p></div>
+          <div><h2>Установка сборки</h2><p>Скачайте ZIP-архив, распакуйте его и перенесите папки <code>mods</code>, <code>config</code>, <code>resourcepacks</code>, а также файлы <code>options.txt</code> и <code>servers.dat</code> в папку игры.</p></div>
         </li>
         <li>
           <span class="number">03</span>
-          <div><h2>Запускай</h2><p>Открой профиль NeoForge, запусти игру и подключайся к серверу.</p></div>
+          <div><h2>Запуск</h2><p>Откройте сборку, запустите игру и подключитесь к серверу.</p></div>
         </li>
       </ol>
     </section>
@@ -167,17 +186,21 @@
           minimumFractionDigits: 1,
           maximumFractionDigits: 1
         });
-        sizeElement.textContent = "Размер: " + megabytes + " МБ";
+        sizeElement.textContent = megabytes + " МБ";
+        sizeElement.removeAttribute("aria-label");
 
         const lastUpload = new Date(asset.updated_at || asset.created_at);
         updatedElement.textContent = Number.isNaN(lastUpload.getTime())
-          ? "Обновлено: нет данных"
-          : "Обновлено: " + new Intl.DateTimeFormat("ru-RU", {
+          ? "нет данных"
+          : new Intl.DateTimeFormat("ru-RU", {
               day: "2-digit", month: "2-digit", year: "numeric"
             }).format(lastUpload);
+        updatedElement.removeAttribute("aria-label");
       }).catch(function () {
-        sizeElement.textContent = "Размер: нет данных";
-        updatedElement.textContent = "Обновлено: нет данных";
+        sizeElement.textContent = "нет данных";
+        updatedElement.textContent = "нет данных";
+        sizeElement.removeAttribute("aria-label");
+        updatedElement.removeAttribute("aria-label");
       });
     })();
   </script>
