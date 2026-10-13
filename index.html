@@ -44,20 +44,6 @@
       justify-content: center;
     }
 
-    .banner-slot {
-      width: min(100%, 500px);
-      height: 100px;
-      margin: 0 auto 12px;
-      overflow: hidden;
-      border-radius: 4px;
-    }
-    .banner-slot img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
     .download {
       display: flex;
       justify-content: center;
@@ -149,7 +135,6 @@
 
     @media (max-width: 560px) {
       main { width: calc(100% - 36px); padding: 26px 0; }
-      .banner-slot { width: 100%; height: 94px; }
       .download { width: 100%; }
       .guide { margin-top: 26px; }
       h1 { font-size: 23px; }
@@ -163,7 +148,6 @@
 </head>
 <body>
   <main>
-    <div class="banner-slot"><img src="./banner.png" alt="Баннер TD" width="500" height="100"></div>
     <a class="download" id="download-button" href="https://github.com/Clonelis/tdmodpack/releases/download/modpack-download/TD-Modpack.zip" target="_blank" rel="noopener noreferrer">
       <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true">
         <path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/>
