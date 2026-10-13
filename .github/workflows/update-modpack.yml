@@ -1,0 +1,113 @@
+name: Update modpack ZIP
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-modpack.yml"
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tdmodpack-release
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if source modpack changed
+        id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_repo="Clonelis/TerraDivina-Modpack"
+          latest=0
+          for source_path in mods config resourcepacks options.txt servers.dat; do
+            date_string="$(gh api "repos/${source_repo}/commits?path=${source_path}&per_page=1" --jq '.[0].commit.committer.date // ""')"
+            if [ -n "$date_string" ]; then
+              stamp="$(date -u -d "$date_string" +%s)"
+              if [ "$stamp" -gt "$latest" ]; then latest="$stamp"; fi
+            fi
+          done
+
+          released="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/modpack-download" --jq '[.assets[] | select(.name == "TD-Modpack.zip") | .updated_at] | first // ""' 2>/dev/null || true)"
+          if [ -n "$released" ]; then
+            released_epoch="$(date -u -d "$released" +%s)"
+            if [ "$released_epoch" -ge "$latest" ]; then
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              echo "The published modpack is up to date."
+              exit 0
+            fi
+          fi
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+
+      - name: Download current modpack files
+        if: steps.changes.outputs.publish == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: Clonelis/TerraDivina-Modpack
+          ref: main
+          path: source
+          persist-credentials: false
+          sparse-checkout: |
+            mods
+            config
+            resourcepacks
+            options.txt
+            servers.dat
+          sparse-checkout-cone-mode: false
+
+      - name: Build ZIP
+        if: steps.changes.outputs.publish == 'true'
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+
+          source = Path("source")
+          archive_name = "TD-Modpack.zip"
+          folders = ("mods", "config", "resourcepacks")
+          extra_files = ("options.txt", "servers.dat")
+          with ZipFile(archive_name, "w", compression=ZIP_DEFLATED, compresslevel=6) as archive:
+              for folder in folders:
+                  directory = source / folder
+                  if not directory.is_dir():
+                      raise SystemExit(f"Required directory is missing: {folder}")
+                  for file in sorted(directory.rglob("*")):
+                      if file.is_file() and file.name not in {".gitkeep", ".DS_Store"}:
+                          archive.write(file, arcname=file.relative_to(source).as_posix())
+              for filename in extra_files:
+                  file = source / filename
+                  if not file.is_file():
+                      raise SystemExit(f"Required file is missing: {filename}")
+                  archive.write(file, arcname=filename)
+          print(f"Archive ready: {Path(archive_name).stat().st_size} bytes")
+          PY
+
+      - name: Publish the current ZIP
+        if: steps.changes.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="modpack-download"
+          archive="TD-Modpack.zip"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$archive" --clobber
+            gh release edit "$tag" --title "TD" --notes ""
+          else
+            gh release create "$tag" "$archive" \
+              --target "$GITHUB_SHA" \
+              --title "TD" \
+              --notes "" \
+              --latest
+          fi
