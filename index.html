@@ -32,7 +32,7 @@
     main {
       width: min(100% - 40px, 570px);
       margin: 0 auto;
-      padding: clamp(85px, 14vh, 150px) 0 70px;
+      padding: clamp(40px, 6vh, 64px) 0 56px;
     }
 
     .download {
@@ -66,14 +66,14 @@
       column-gap: 11px;
       row-gap: 6px;
       max-width: 100%;
-      margin: 8px auto 0;
+      margin: 5px auto 0;
       color: var(--muted);
       font-size: 12px;
       text-align: center;
       line-height: 1.6;
     }
     .file-info .separator { color: #705a4d; }
-    .guide { margin-top: 100px; }
+    .guide { margin-top: 34px; }
     h1 {
       margin: 0 0 24px;
       font-size: 26px;
@@ -98,9 +98,9 @@
     code { border-radius: 4px; padding: 1px 4px; color: #dca886; background: #2d221c; font-size: .94em; }
 
     @media (max-width: 560px) {
-      main { width: calc(100% - 36px); padding: 95px 0 55px; }
+      main { width: calc(100% - 36px); padding: 42px 0 50px; }
       .download { width: 100%; }
-      .guide { margin-top: 76px; }
+      .guide { margin-top: 26px; }
       h1 { font-size: 23px; }
       li { grid-template-columns: 24px minmax(0, 1fr); gap: 12px; }
     }
@@ -173,7 +173,7 @@
         updatedElement.textContent = Number.isNaN(lastUpload.getTime())
           ? "Обновлено: нет данных"
           : "Обновлено: " + new Intl.DateTimeFormat("ru-RU", {
-              day: "numeric", month: "short", year: "numeric"
+              day: "2-digit", month: "2-digit", year: "numeric"
             }).format(lastUpload);
       }).catch(function () {
         sizeElement.textContent = "Размер: нет данных";
