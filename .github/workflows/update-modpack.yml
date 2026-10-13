@@ -37,7 +37,10 @@ jobs:
             fi
           done
 
-          released="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/modpack-download" --jq '[.assets[] | select(.name == "TD-Modpack.zip") | .updated_at] | first // ""' 2>/dev/null || true)"
+          released=""
+          if gh release view modpack-download --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            released="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/modpack-download" --jq '[.assets[] | select(.name == "TD-Modpack.zip") | .updated_at] | first // ""')"
+          fi
           if [ -n "$released" ]; then
             released_epoch="$(date -u -d "$released" +%s)"
             if [ "$released_epoch" -ge "$latest" ]; then
