@@ -1,0 +1,43 @@
+name: Publish TD website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: td-website-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Prepare site files
+        run: |
+          mkdir -p public
+          cp index.html public/index.html
+      - name: Upload static website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - name: Deploy site
+        id: deployment
+        uses: actions/deploy-pages@v4
