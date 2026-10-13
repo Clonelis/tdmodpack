@@ -48,18 +48,15 @@
       width: min(100%, 500px);
       height: 100px;
       margin: 0 auto 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      border: 1px dashed rgba(194, 157, 101, .28);
+      overflow: hidden;
       border-radius: 4px;
-      background: linear-gradient(115deg, rgba(171, 130, 73, .075), rgba(226, 184, 124, .025));
-      color: #a18b69;
-      font-size: 12px;
-      letter-spacing: .12px;
     }
-    .banner-slot svg { flex: none; color: #b09568; }
+    .banner-slot img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
     .download {
       display: flex;
@@ -166,14 +163,7 @@
 </head>
 <body>
   <main>
-    <div class="banner-slot" aria-label="Место для будущего баннера">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="3" y="3" width="18" height="18" rx="3"/>
-        <circle cx="8.5" cy="8.5" r="1.5"/>
-        <path d="m21 15-5-5L5 21"/>
-      </svg>
-      <span>Здесь будет баннер</span>
-    </div>
+    <div class="banner-slot"><img src="./banner.png" alt="Баннер TD" width="500" height="100"></div>
     <a class="download" id="download-button" href="https://github.com/Clonelis/tdmodpack/releases/download/modpack-download/TD-Modpack.zip" target="_blank" rel="noopener noreferrer">
       <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" aria-hidden="true">
         <path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/>
